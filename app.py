@@ -3,8 +3,6 @@ import google.generativeai as genai
 import speech_recognition as sr
 import pyttsx3  # AI voice output
 import geopy.distance  # Geo-Fencing
-import cv2  # Camera for Morse Code
-import numpy as np
 import time
 
 # Set Gemini API Key
@@ -49,32 +47,6 @@ def morse_code_translate(text, to_morse=True):
     else:
         reverse_dict = {v: k for k, v in morse_dict.items()}
         return ''.join(reverse_dict[char] for char in text.split(' ') if char in reverse_dict)
-
-
-def detect_morse_camera():
-    """Detect Morse code signals from a flashing light using a camera."""
-    cap = cv2.VideoCapture(0)
-    prev_intensity = None
-    morse_sequence = ""
-    start_time = time.time()
-
-    st.info("📹 Detecting Morse Code via Camera...")
-    while time.time() - start_time < 10:  # Detect for 10 seconds
-        ret, frame = cap.read()
-        if not ret:
-            break
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        intensity = np.mean(gray)
-
-        if prev_intensity is not None:
-            if intensity - prev_intensity > 50:  # Flash detected
-                morse_sequence += '.' if (time.time() - start_time) < 0.5 else '-'
-                start_time = time.time()
-        prev_intensity = intensity
-    cap.release()
-
-    decoded_message = morse_code_translate(morse_sequence, to_morse=False)
-    return decoded_message if decoded_message else "No Morse code detected."
 
 
 def speech_to_text():
@@ -127,6 +99,7 @@ def main():
         - 📍 **Geo-Fencing**: Self-destruct messages for secure operations  
         - 🎤 **Voice Command Support**: Control the system hands-free  
         """)
+
     elif choice == "📜 Mission Planning":
         st.title("📜 AI-Driven Mission Planning")
         mission_details = st.text_area("Enter Mission Details")
